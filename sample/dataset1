@@ -1,0 +1,95 @@
+mobylette
+
+  gcc/9.2       ... 1
+  ifaible/2020  ... 1
+  ifaible/3030  ... 2
+  ifort/2020    ... 1
+  ifort/3030    ... 2
+  python/2.7    ... 1
+
+mobylette -group cat
+
+  gcc           ... 1
+  ifaible       ... 3
+  ifort         ... 3
+  python        ... 1
+
+mobylette -group path
+
+  /home         ... 2
+  /opt          ... 6
+
+mobylette -uniq users
+
+  gcc/9.2       ... 1
+  ifaible/2020  ... 1
+  ifaible/3030  ... 2
+  ifort/2020    ... 1
+  ifort/3030    ... 2
+  python/2.7    ... 1
+ 
+mobylette -uniq users -group cat
+
+  gcc/9.2       ... 1
+  ifaible       ... 3
+  ifort/2020    ... 3
+  python/2.7    ... 1
+
+mobylette -uniq users -group path
+
+  /opt          ... 6
+  /home         ... 2
+  
+mobylette sample log data:
+
+  job = 1
+  user = jay
+  path = /opt
+  timestamp = 8-jan-2020
+
+  2 x ifort/3030
+  2 x ifaible/3030
+
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578438000, host=debug01, user=jay, action=load, module=ifort/3030, path=/opt/modulefiles/lib/ifort/3030, cat=ifort, version=3030, shell=bash, job_id=1, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578438000, host=debug01, user=jay, action=load, module=ifaible/3030, path=/opt/modulefiles/lib/ifaible/3030, cat=ifaible, version=3030, shell=bash, job_id=1, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578438000, host=debug01, user=jay, action=load, module=ifort/3030, path=/opt/modulefiles/lib/ifort/3030, cat=ifort, version=3030, shell=bash, job_id=1, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578438000, host=debug01, user=jay, action=load, module=ifaible/3030, path=/opt/modulefiles/lib/ifaible/3030, cat=ifaible, version=3030, shell=bash, job_id=1, job_acc=prod, job_part=ai
+
+  job = 2
+  user = john
+  path = /home/john
+  timestamp = 3-jan-2020
+  
+  2 x ifort/3030
+  2 x ifaible/3030
+                                                                                      1578178800
+2019-12-31T15:53:12.583243+01:00 debug02 user.notice lmod: source=ModUsageTrack, time=1578006000, host=debug02, user=john, action=load, module=ifort/3030, path=/home/john/modulefiles/lib/ifort/3030, cat=ifort, version=3030, shell=bash, job_id=2, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug02 user.notice lmod: source=ModUsageTrack, time=1578006000, host=debug02, user=john, action=load, module=ifaible/3030, path=/home/john/modulefiles/lib/ifaible/3030, cat=ifaible, version=3030, shell=bash, job_id=2, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug02 user.notice lmod: source=ModUsageTrack, time=1578006000, host=debug02, user=john, action=load, module=ifort/3030, path=/home/john/modulefiles/lib/ifort/3030, cat=ifort, version=3030, shell=bash, job_id=2, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug02 user.notice lmod: source=ModUsageTrack, time=1578006000, host=debug02, user=john, action=load, module=ifaible/3030, path=/home/john/modulefiles/lib/ifaible/3030, cat=ifaible, version=3030, shell=bash, job_id=2, job_acc=prod, job_part=ai
+
+  job = 3
+  user = johnson
+  path = /opt
+  timestamp = 13-jan-2020
+  
+  2 x python/2.7
+  2 x gcc/9.2
+
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578870000, host=debug01, user=jay, action=load, module=python/2.7, path=/opt/modulefiles/lib/python/2.7, cat=python, version=2.7, shell=bash, job_id=3, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578870000, host=debug01, user=jay, action=load, module=gcc/9.2, path=/opt/modulefiles/lib/gcc/9.2, cat=gcc, version=9.2, shell=bash, job_id=3, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578870000, host=debug01, user=jay, action=load, module=python/2.7, path=/opt/modulefiles/lib/python/2.7, cat=python, version=2.7, shell=bash, job_id=3, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578870000, host=debug01, user=jay, action=load, module=gcc/9.2, path=/opt/modulefiles/lib/gcc/9.2, cat=gcc, version=9.2, shell=bash, job_id=3, job_acc=prod, job_part=ai
+
+  job = 4
+  user = jay
+  path = /opt
+  timestamp = 11-jan-2020
+
+  2 x ifort/2020
+  2 x ifaible/2020
+
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578697200, host=debug01, user=jay, action=load, module=ifort/2020, path=/opt/modulefiles/lib/ifort/3030, cat=ifort, version=2020, shell=bash, job_id=4, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578697200, host=debug01, user=jay, action=load, module=ifaible/2020, path=/opt/modulefiles/lib/ifaible/3030, cat=ifaible, version=2020, shell=bash, job_id=4, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578697200, host=debug01, user=jay, action=load, module=ifort/2020, path=/opt/modulefiles/lib/ifort/3030, cat=ifort, version=2020, shell=bash, job_id=4, job_acc=prod, job_part=ai
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578697200, host=debug01, user=jay, action=load, module=ifaible/2020, path=/opt/modulefiles/lib/ifaible/3030, cat=ifaible, version=2020, shell=bash, job_id=4, job_acc=prod, job_part=ai

@@ -1,0 +1,210 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+##############################################################################
+#                                                                            #
+#  This file is part of the mobylette parsing tool.                          #
+#        Copyright (C) 2019 EDF SA                                           #
+#                                                                            #
+#  mobylette is free software: you can redistribute it and/or modify         #
+#  it under the terms of the GNU General Public License as published by      #
+#  the Free Software Foundation, either version 3 of the License, or         #
+#  (at your option) any later version.                                       #
+#                                                                            #
+#  mobylette is distributed in the hope that it will be useful,              #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of            #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              #
+#  GNU General Public License for more details.                              #
+#                                                                            #
+#  You should have received a copy of the GNU General Public License         #
+#  along with mobyllette. If not, see <http://www.gnu.org/licenses/>.        #
+#                                                                            #
+##############################################################################
+
+import re # compile
+import os # walk, path
+import sys # stdout
+import csv # writer
+import time # sleep
+import multiprocessing as mp # Process, Pool, cpu_count
+from collections import Counter
+
+from mobylette.args import ParseArgs
+from mobylette.config import Config
+from mobylette.chart import Chart
+import mobylette.reader as reader
+
+def create_file_list(pattern, log_path, nodes_tuple):
+    ''' Returns list of file matching pattern stored
+    under log_path on directories whose name starts
+    by nodes_tuple.
+    '''
+    files_list = []
+    files_count = 0
+    files_size = 0
+    file_patt = re.compile(pattern)
+    for root, dirs, files in os.walk(log_path, topdown=False):
+        if os.path.basename(root).startswith(nodes_tuple):
+            for name in files:
+                match = file_patt.search(name)
+                if match is not None:
+                    files_count += 1
+                    file = os.path.join(root, name)
+                    files_size += os.path.getsize(file)
+                    files_list.append(file)
+    return files_list
+
+def backspace(n):
+    ''' Moves cursor n steps backwards '''
+    sys.stdout.write((b'\x08' * n).decode())
+
+def erase_forward(n):
+    ''' Prints white space n times '''
+    sys.stdout.write(' ' * n)
+    sys.stdout.flush()
+
+def point_sleep(n):
+    ''' Prints a period and sleeps
+    for 1 second (repeat n times) '''
+    for i in range(n):
+        sys.stdout.write('.')
+        sys.stdout.flush()
+        time.sleep(1)
+
+def erase_sleep(n):
+    ''' Prints white space and sleeps
+    for 1 second (repeat n times) '''
+    for i in range(n):
+        sys.stdout.write(' ')
+        sys.stdout.flush()
+        time.sleep(1)
+
+def print_usr_msg(msg):
+    ''' Prints wating message on screen '''
+    sys.stdout.write(msg) ; sys.stdout.flush()
+    length = 5
+    while True:
+        point_sleep(length)
+        backspace(length)
+        erase_forward(length)
+        backspace(length)
+
+if __name__ == "__main__":
+
+    # All arguments are stored in a dictionary which
+    # is used whenever needed across the program.
+    parse = ParseArgs()
+    options = {}
+    options['internals'] = {'uniq' : parse.args.uniq, 'group' : parse.args.group, 'verbose' : parse.args.verbose, 'cpus' : parse.args.cpus}
+    options['filter'] = {'start_date' : parse.args.start_date, 'end_date' : parse.args.end_date, 'module' : parse.args.module}
+    options['chart'] = {'max_charts' : parse.args.max_charts, 'max_rows' : parse.args.max_rows, 'chart_color' : parse.args.chart_color}
+
+    # Reads configuration file  mobylette.conf
+    conf = Config(options['internals']['verbose'])
+    options['config'] = {'log_path' : conf.log_path, 'cluster_name' : conf.cluster_name, 'cluster_prefix' : conf.cluster_prefix,
+                         'search_pattern' : conf.search_pattern, 'nodes_tuple' : conf.nodes_tuple, 'hostname' : conf.hostname}
+
+    if options['internals']['verbose']:
+        print(options)
+
+    # Creates list of all files to be parsed, meaning all files that
+    # match the pattern in mobylette.conf and that are located also
+    # in the path given by `log_path` in this same file.
+    file_list = create_file_list(options['config']['search_pattern'],
+                                 options['config']['log_path'],
+                                 options['config']['nodes_tuple'])
+
+    print('total files found: {}'.format(len(file_list)))
+
+    if options['internals']['verbose']:
+        print(file_list)
+
+    if options['internals']['cpus'] is None:
+        from math import floor
+        cpu = int(floor(mp.cpu_count() * 0.75))
+    else:
+        cpu = int(options['internals']['cpus'])
+
+    print("using {} cpus".format(cpu))
+
+    start_date_arr = [options['filter']['start_date']] * len(file_list)
+    end_date_arr = [options['filter']['end_date']] * len(file_list)
+    modules_arr = [options['filter']['module']] * len(file_list)
+
+    # Main logic for mobylette
+    if 'users' in options['internals']['uniq']:
+        worker = reader.read_users
+        chart_label = 'Nombre modules (utilisateurs uniques)'
+        if 'cat' == options['internals']['group']:
+            worker = reader.read_users_cat
+            chart_label = 'Nombre de modules par categorie (utilisateurs uniques)'
+        if 'path' == options['internals']['group']:
+            worker = reader.read_users_path
+            chart_label = 'Nombre de modules par chemin (utilisateurs uniques)'
+    elif 'jobs' in options['internals']['uniq']:
+        worker = reader.read_jobs
+        chart_label = 'Nombre de modules (jobs uniques)'
+        if 'cat' == options['internals']['group']:
+            worker = reader.read_jobs_cat
+            chart_label = 'Nombre de modules par categorie (jobs uniques)'
+        if 'path' == options['internals']['group']:
+            worker = reader.read_jobs_path
+            chart_label = 'Nombre de modules par chemin (jobs uniques)'
+
+    # The following two commented lines are usefull when debuging
+    # the read functions where a serial version is needed.
+    #params = (file_list[0], start_date_arr[0], end_date_arr[0], modules_arr[0])
+    #result = worker(params)
+
+    # Sends message to user while parsing files
+    usr_msg = mp.Process(target=print_usr_msg, args=('parsing files ', ))
+    usr_msg.start()
+
+    # For this technique to work, the parameter array must be passed in this order:
+    # file_list, start_array, end_array, module_list
+    p = mp.Pool(processes=cpu)
+
+    # For performance issues we'll be calling a dedicated function
+    # according to the parameters we have.
+    result = p.map(worker, zip(file_list, start_date_arr, end_date_arr, modules_arr))
+
+    usr_msg.terminate()
+    usr_msg.join()
+    sys.stdout.write('\n') ; sys.stdout.flush()
+
+    print 'checking results'
+
+    # matter is the set of ALL DISTINCT tuples found. Because two files can reference the
+    # same tuple the creation of the matter uses the set instruction to only count once each tuple.
+    # The matter variable is a list of tuples. It also does a simplification of the `result` variable.
+    matter = set([result[files].values()[0][item] for files in range(len(result))
+                                                for item in range(len(result[files].values()[0]))])
+    bodies = {}
+    for first, second in matter:
+        bodies.setdefault(first, []).append(second)
+
+    if len(matter) == 0:
+        print 'no modules found matching criteria'
+        exit()
+
+    sorted_keys = sorted(bodies.keys())
+
+    print 'ploting graphs'
+
+    # Create chart (orderd bodies)
+    chart = Chart(sorted_keys, [len(bodies[mod]) for mod in sorted_keys],
+                  options, x_label = chart_label, title = 'Chargement de modules', chart_color = options['chart']['chart_color'])
+
+    print 'writing report'
+
+    # Create CSV report
+    with open('report.csv', 'wb') as csv_file:  # Just use 'w' mode in 3.x
+        writer = csv.writer(csv_file)
+        for key in sorted_keys:
+            str = [key]
+            str.append(len(bodies[key]))
+            if 'users' in options['internals']['uniq'] and options['internals']['group'] is None:
+                for val in sorted(bodies[key]):
+                    str.append(val)
+            writer.writerows([str])
+
+    print 'execution finished ok'

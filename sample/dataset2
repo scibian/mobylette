@@ -1,0 +1,74 @@
+mobylette
+
+  abc/123       ... 1
+  gcc/9.2       ... 2
+  python/2.7    ... 2
+  python/3.6    ... 1
+
+mobylette -group cat
+
+  abc           ... 1
+  gcc           ... 2
+  python        ... 3
+
+mobylette -group path
+
+  /home         ... 4
+  /opt          ... 2
+
+mobylette -uniq users
+
+  abc/123       ... 1
+  gcc/9.2       ... 1
+  python/2.7    ... 1
+  python/3.6    ... 1
+
+mobylette -uniq users -group cat
+
+  abc/123       ... 1
+  gcc/9.2       ... 1
+  python/2.7    ... 2
+
+mobylette -uniq users -group path
+
+  /home         ... 3
+  /opt          ... 2
+
+mobylette sample log data:
+
+  job = 1
+  user = jay
+  path = /opt
+  time = 20200107 123515
+
+  2 x abc/123
+  2 x gcc/9.2
+
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578396915, host=debug01, user=jay, action=load, module=abc/123, path=/opt/modulefiles/lib/abc/123, cat=abc, version=123, shell=bash, job_id=1, job_acc=dev, job_part=alpha
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578396915, host=debug01, user=jay, action=load, module=gcc/9.2, path=/opt/modulefiles/lib/gcc/9.2, cat=gcc, version=9.2, shell=bash, job_id=1, job_acc=dev, job_part=alpha
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578396915, host=debug01, user=jay, action=load, module=abc/123, path=/opt/modulefiles/lib/abc/123, cat=abc, version=123, shell=bash, job_id=1, job_acc=dev, job_part=alpha
+2019-12-31T15:53:12.583243+01:00 debug01 user.notice lmod: source=ModUsageTrack, time=1578396915, host=debug01, user=jay, action=load, module=gcc/9.2, path=/opt/modulefiles/lib/gcc/9.2, cat=gcc, version=9.2, shell=bash, job_id=1, job_acc=dev, job_part=alpha
+
+  job = 2
+  user = jay
+  path = /home/jay
+  time = 20200111 120000
+  
+  2 x gcc/9.2
+  2 x python/2.7
+
+2019-12-31T15:53:12.583243+01:00 debug02 user.notice lmod: source=ModUsageTrack, time=1578740400, host=debug02, user=jay, action=load, module=python/2.7, path=/home/jay/modulefiles/lib/python/2.7, cat=python, version=2.7, shell=bash, job_id=2, job_acc=dev, job_part=alpha
+2019-12-31T15:53:12.583243+01:00 debug02 user.notice lmod: source=ModUsageTrack, time=1578740400, host=debug02, user=jay, action=load, module=gcc/9.2, path=/home/jay/modulefiles/lib/gcc/9.2, cat=gcc, version=9.2, shell=bash, job_id=2, job_acc=dev, job_part=alpha
+2019-12-31T15:53:12.583243+01:00 debug02 user.notice lmod: source=ModUsageTrack, time=1578740400, host=debug02, user=jay, action=load, module=python/2.7, path=/home/jay/modulefiles/lib/python/2.7, cat=python, version=2.7, shell=bash, job_id=2, job_acc=dev, job_part=alpha
+2019-12-31T15:53:12.583243+01:00 debug02 user.notice lmod: source=ModUsageTrack, time=1578740400, host=debug02, user=jay, action=load, module=gcc/9.2, path=/home/jay/modulefiles/lib/gcc/9.2, cat=gcc, version=9.2, shell=bash, job_id=2, job_acc=dev, job_part=alpha
+  
+  job = 3
+  user = jay
+  path = /home/jay
+  time = 20200117 170017
+  
+  1 x python/3.6
+  1 x python/2.7
+
+2019-12-31T15:53:12.583243+01:00 debug02 user.notice lmod: source=ModUsageTrack, time=1579276817, host=debug02, user=jay, action=load, module=python/2.7, path=/home/jay/modulefiles/lib/python/2.7, cat=python, version=2.7, shell=bash, job_id=3, job_acc=dev, job_part=alpha
+2019-12-31T15:53:12.583243+01:00 debug02 user.notice lmod: source=ModUsageTrack, time=1579276817, host=debug02, user=jay, action=load, module=python/3.6, path=/home/jay/modulefiles/lib/python/3.6, cat=python, version=3.6, shell=bash, job_id=3, job_acc=dev, job_part=alpha
